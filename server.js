@@ -26,37 +26,37 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const helmet = require("helmet");
 app.use(helmet.xssFilter());
 app.use(helmet.noSniff());
-app.use(helmet.contentSecurityPolicy({
-  directives: {
-    styleSrc: ["'self'"],
-    scriptSrc: ["'self'"]
-  }
-}));
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      styleSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+    },
+  })
+);
 
 // Index page (static HTML)
-app.route("/").get(function(req, res) {
+app.route("/").get(function (req, res) {
   res.sendFile(process.cwd() + "/views/index.html");
 });
 
 // For FCC testing purposes
 fccTestingRoutes(app);
 
-// Routing for API 
+// Routing for API
 apiRoutes(app);
 
 // 404 Not Found Middleware
-app.use(function(req, res, next) {
-  res.status(404)
-    .type("text")
-    .send("Not Found");
+app.use(function (req, res, next) {
+  res.status(404).type("text").send("Not Found");
 });
 
 // Start our server and tests!
-const listener = app.listen(process.env.PORT || 3000, function() {
+const listener = app.listen(process.env.PORT || 3000, function () {
   console.log("Your app is listening on port " + listener.address().port);
   if (process.env.NODE_ENV === "test") {
     console.log("Running Tests...");
-    setTimeout(function() {
+    setTimeout(function () {
       try {
         runner.run();
       } catch (e) {
