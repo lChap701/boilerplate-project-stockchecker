@@ -12,6 +12,7 @@ const cru = require("../cru");
 module.exports = function (app) {
   app.route("/api/stock-prices").get((req, res) => {
     const { stock } = req.query;
+    console.log(stock);
     const API =
       "https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/" +
       stock +
@@ -29,9 +30,9 @@ module.exports = function (app) {
 
           // Checks if stock needs to be created or updated and displays the stock
           cru
-            .findStock(stock)
+            .findStock(stock.toUpperCase())
             .then((stockObj) => {
-              if (req.query.like) {
+              if (req.query.like == "true") {
                 cru
                   .updateStock(stockObj._id, stockObj.likes + 1)
                   .then(() => res.json({ stockData: stockObj }));
@@ -44,9 +45,10 @@ module.exports = function (app) {
                 .addStock({
                   stock: stock,
                   price: latestPrice,
-                  likes: req.query.like ? 1 : 0,
+                  likes: req.query.like == "true" ? 1 : 0,
                 })
                 .then((stockObj) => res.json({ stockData: stockObj }))
+                .catch((ex) => res.send(ex))
             );
         });
       })
