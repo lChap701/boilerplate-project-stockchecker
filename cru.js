@@ -10,9 +10,10 @@ mongoose.connect(process.env.DB, {
 // Schema
 const Schema = mongoose.Schema;
 const stockSchema = new Schema({
-  stock: { type: String, uppercase: true, trim: true },
+  name: { type: String, uppercase: true, trim: true },
   price: Number,
   likes: Number,
+  ips: [String],
 });
 
 // Model
@@ -25,8 +26,9 @@ const Stocks = mongoose.model("Stocks", stockSchema);
  */
 const cru = {
   addStock: (data) => new Stocks(data).save(),
-  findStock: (stock) => Stocks.findOne({ stock: stock }),
-  updateStock: (_id, likes, price) => Stocks.updateOne({ _id: _id }, { likes: likes, price: price }),
+  findStock: (stock) => Stocks.findOne({ name: stock }),
+  updateStock: (_id, likes, price, ips) =>
+    Stocks.updateOne({ _id: _id }, { likes: likes, price: price, ips: ips }),
 };
 
 module.exports = cru;

@@ -22,6 +22,9 @@ app.use(cors({ origin: "*" })); // For FCC testing purposes only
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Allows the true IP address to be used
+app.enable("trust proxy");
+
 // Helmet Setup
 const helmet = require("helmet");
 app.use(helmet.xssFilter());
