@@ -7,7 +7,6 @@ chai.use(chaiHttp);
 
 suite("Functional Tests", function () {
   /* My Tests */
-  this.timeout(5000);
   const PATH = "/api/stock-prices";
   let likes = 0;
 
@@ -79,6 +78,22 @@ suite("Functional Tests", function () {
             "stock",
             "MSFT",
             "response should return an array containing an object with a property of 'stock' that equals 'MSFT'"
+          );
+          likes = JSON.parse(res.text).stockData[1].rel_likes;
+          done();
+        });
+    });
+
+    test("2)  Compare Stocks (with Likes)", (done) => {
+      chai
+        .request(server)
+        .get(PATH + "?stock=GOOG&stock=MSFT&like=true")
+        .end((err, res) => {
+          assert.equal(res.status, 200, "response status should be 200");
+          assert.notEqual(
+            JSON.parse(res.text).stockData[1].rel_likes,
+            likes,
+            "response should return an array containing an object with a property of 'rel_likes' that is greater than '-1'"
           );
           done();
         });
