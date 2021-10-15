@@ -2,6 +2,7 @@ const chaiHttp = require("chai-http");
 const chai = require("chai");
 const assert = chai.assert;
 const server = require("../server");
+const cru = require("../cru");
 
 chai.use(chaiHttp);
 
@@ -10,11 +11,32 @@ suite("Functional Tests", function () {
   const PATH = "/api/stock-prices";
   let likes = 0;
 
+  // Removes changes from documents used for testing
+  this.afterAll(() => {
+    const inputs = ["GOOG", "MSFT"];
+
+    inputs.forEach((input) => {
+      cru.findStock(input).then((stock) => {
+        cru
+          .updateStock(
+            stock._id,
+            stock.likes - 1,
+            stock.price,
+            stock.ips.filter((ip) => ip !== "192.168.2.1")
+          )
+          .then(() => {
+            if (input == "GOOG") likes = stock.likes;
+          });
+      });
+    });
+  });
+
   suite("One Stock Tests", () => {
     test("1)  Get Stock (without Likes)", (done) => {
       chai
         .request(server)
         .get(PATH + "?stock=GOOG")
+        .set("X-Forwarded-For", "192.168.2.1")
         .end((err, res) => {
           assert.equal(res.status, 200, "response status should be 200");
           assert.deepPropertyVal(
@@ -31,6 +53,7 @@ suite("Functional Tests", function () {
       chai
         .request(server)
         .get(PATH + "?stock=GOOG&like=true")
+        .set("X-Forwarded-For", "192.168.2.1")
         .end((err, res) => {
           assert.equal(res.status, 200, "response status should be 200");
           assert.notDeepEqual(
@@ -47,6 +70,7 @@ suite("Functional Tests", function () {
       chai
         .request(server)
         .get(PATH + "?stock=goog&like=true")
+        .set("X-Forwarded-For", "192.168.2.1")
         .end((err, res) => {
           assert.equal(res.status, 200, "response status should be 200");
           assert.equal(
@@ -64,6 +88,7 @@ suite("Functional Tests", function () {
       chai
         .request(server)
         .get(PATH + "?stock=GOOG&stock=MSFt")
+        .set("X-Forwarded-For", "192.168.2.1")
         .end((err, res) => {
           assert.equal(res.status, 200, "response status should be 200");
           assert.isArray(JSON.parse(res.text).stockData);
@@ -88,6 +113,7 @@ suite("Functional Tests", function () {
       chai
         .request(server)
         .get(PATH + "?stock=GOOG&stock=MSFT&like=true")
+        .set("X-Forwarded-For", "192.168.2.1")
         .end((err, res) => {
           assert.equal(res.status, 200, "response status should be 200");
           assert.notEqual(
