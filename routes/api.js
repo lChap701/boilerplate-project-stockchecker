@@ -52,15 +52,17 @@ module.exports = function (app) {
             if (like == "true" || stockObj.price != latestPrice) {
               let likes = like == "true" ? stockObj.likes + 1 : stockObj.likes;
 
-              cru.updateStock(stockObj._id, likes, latestPrice).then(() =>
-                res.json({
-                  stockData: {
-                    stock: stockObj.stock,
-                    price: stockObj.price,
-                    likes: stockObj.likes,
-                  },
-                })
-              );
+              cru
+                .updateStock(stockObj._id, likes, latestPrice)
+                .then((newStock) =>
+                  res.json({
+                    stockData: {
+                      stock: newStock.stock,
+                      price: newStock.price,
+                      likes: newStock.likes,
+                    },
+                  })
+                );
             } else {
               res.json({
                 stockData: {
