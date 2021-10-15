@@ -10,9 +10,9 @@ mongoose.connect(process.env.DB, {
 // Schema
 const Schema = mongoose.Schema;
 const stockSchema = new Schema({
-  name: { type: String, uppercase: true, trim: true },
+  name: { type: String, uppercase: true, trim: true, required: true },
   price: Number,
-  likes: Number,
+  likes: { type: Number, default: 0 },
   ips: [String],
 });
 
