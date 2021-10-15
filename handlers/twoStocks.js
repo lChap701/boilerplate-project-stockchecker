@@ -60,10 +60,10 @@ module.exports = (stocks, like, ip, res) => {
               }
 
               if (like == "true" || stockObj.price != latestPrice) {
-                let likes = stockObj.likes;
+                let { likes, ips } = stockObj;
 
-                if (like == "true" && !stockObj.ips.includes(ip)) {
-                  stockObj.ips.push(ip);
+                if (like == "true" && !ips.includes(ip)) {
+                  ips.push(ip);
                   likes++;
                 }
 
