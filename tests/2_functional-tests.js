@@ -8,6 +8,7 @@ chai.use(chaiHttp);
 suite("Functional Tests", function () {
   /* My Tests */
   const PATH = "/api/stock-prices";
+  let likes = 0;
 
   suite("One Stock Tests", () => {
     test("1)  Get Stock (without Likes)", (done) => {
@@ -34,8 +35,24 @@ suite("Functional Tests", function () {
           assert.equal(res.status, 200, "response status should be 200");
           assert.notDeepEqual(
             JSON.parse(res.text).stockData.likes,
-            0,
-            "response should return an object with a property of 'likes' that is greater than '0'"
+            likes,
+            `response should return an object with a property of 'likes' that is greater than '${likes}'`
+          );
+          likes = JSON.parse(res.text).stockData.likes;
+          done();
+        });
+    });
+
+    test("3)  Get the Same Stock with Likes", (done) => {
+      chai
+        .request(server)
+        .get(PATH + "?stock=goog&like=true")
+        .end((err, res) => {
+          assert.equal(res.status, 200, "response status should be 200");
+          assert.equal(
+            JSON.parse(res.text).stockData.likes,
+            likes,
+            `response should return an object with a property of 'likes' that equals '${likes}'`
           );
           done();
         });
