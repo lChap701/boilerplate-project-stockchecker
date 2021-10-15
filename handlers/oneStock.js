@@ -9,7 +9,7 @@ const cru = require("../cru");
  * @param {String} like   Determines if the user likes a stock
  * @param {String} ip     Represents the user's IP address
  * @param {*} res         Represents the response
- * 
+ *
  */
 module.exports = (stock, like, ip, res) => {
   // Calls freeCodeCamp's API to get the price of the stock
@@ -56,16 +56,15 @@ module.exports = (stock, like, ip, res) => {
             }
 
             if (like == "true" || stockObj.price != latestPrice) {
-              let likes = stockObj.likes;
+              let { likes, ips } = stockObj;
 
-              if (like == "true" && !stockObj.ips.includes(ip)) {
-                stockObj.ips.push(ip);
+              if (like == "true" && !ips.includes(ip)) {
+                ips.push(ip);
                 likes++;
               }
 
-              cru
-                .updateStock(stockObj._id, likes, latestPrice, stockObj.ips)
-                .then((newStock) =>
+              cru.updateStock(stockObj._id, likes, latestPrice, ips).then(() =>
+                cru.findStock(stockObj.name).then((newStock) =>
                   res.json({
                     stockData: {
                       stock: newStock.name,
@@ -73,7 +72,8 @@ module.exports = (stock, like, ip, res) => {
                       likes: newStock.likes,
                     },
                   })
-                );
+                )
+              );
             } else {
               res.json({
                 stockData: {

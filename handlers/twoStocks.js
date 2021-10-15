@@ -68,13 +68,15 @@ module.exports = (stocks, like, ip, res) => {
                 }
 
                 cru
-                  .updateStock(stockObj._id, likes, latestPrice, stockObj.ips)
-                  .then((newStock) =>
-                    stockData.push({
-                      stock: newStock.name,
-                      price: newStock.price,
-                      rel_likes: newStock.likes,
-                    })
+                  .updateStock(stockObj._id, likes, latestPrice, ips)
+                  .then(() =>
+                    cru.findStock(stockObj.name).then((newStock) =>
+                      stockData.push({
+                        stock: newStock.name,
+                        price: newStock.price,
+                        likes: newStock.likes,
+                      })
+                    )
                   );
               } else {
                 stockData.push({
