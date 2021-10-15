@@ -14,6 +14,19 @@ const cru = require("../cru");
 module.exports = (stocks, like, ip, res) => {
   let stockData = [];
 
+  /**
+   * Compares the two stocks' relative likes
+   */
+  const compareStocks = () => {
+    if (stockData.length == 2) {
+      stockData.sort((a, b) => b.rel_likes - a.rel_likes);
+      stockData[0].rel_likes = stockData[0].rel_likes - stockData[1].rel_likes;
+      stockData[1].rel_likes = stockData[1].rel_likes - stockData[0].rel_likes;
+
+      res.json({ stockData: stockData });
+    }
+  };
+
   // Calls freeCodeCamp's API to get the price of each stock
   stocks.forEach((stock) => {
     https
@@ -45,17 +58,15 @@ module.exports = (stocks, like, ip, res) => {
                     likes: likes,
                     ips: ips,
                   })
-                  .then((stockObj) =>
+                  .then((stockObj) => {
                     stockData.push({
                       stock: stockObj.name,
                       price: stockObj.price,
                       rel_likes: stockObj.likes,
-                    })
-                  )
-                  .catch((ex) => {
-                    res.send(ex);
-                    return;
-                  });
+                    });
+                    compareStocks();
+                  })
+                  .catch((ex) => res.send(ex));
                 return;
               }
 
@@ -70,13 +81,14 @@ module.exports = (stocks, like, ip, res) => {
                 cru
                   .updateStock(stockObj._id, likes, latestPrice, ips)
                   .then(() =>
-                    cru.findStock(stockObj.name).then((newStock) =>
+                    cru.findStock(stockObj.name).then((newStock) => {
                       stockData.push({
                         stock: newStock.name,
                         price: newStock.price,
-                        likes: newStock.likes,
-                      })
-                    )
+                        rel_likes: newStock.likes,
+                      });
+                      compareStocks();
+                    })
                   );
               } else {
                 stockData.push({
@@ -84,21 +96,12 @@ module.exports = (stocks, like, ip, res) => {
                   price: stockObj.price,
                   rel_likes: stockObj.likes,
                 });
+                compareStocks();
               }
             });
           });
         }
       )
-      .on("error", (err) => {
-        res.send(err);
-        return;
-      });
+      .on("error", (err) => res.send(err));
   });
-
-  // Compares the two stocks relative likes
-  stockData.sort((a, b) => b.rel_likes - a.rel_likes);
-  stockData[0].rel_likes = stockData[0].rel_likes - stockData[1].rel_likes;
-  stockData[1].rel_likes = stockData[1].rel_likes - stockData[0].rel_likes;
-
-  res.json({ stockData: stockData });
 };
