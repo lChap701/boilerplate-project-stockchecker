@@ -7,6 +7,7 @@ chai.use(chaiHttp);
 
 suite("Functional Tests", function () {
   /* My Tests */
+  this.timeout(5000);
   const PATH = "/api/stock-prices";
   let likes = 0;
 
@@ -53,6 +54,31 @@ suite("Functional Tests", function () {
             JSON.parse(res.text).stockData.likes,
             likes,
             `response should return an object with a property of 'likes' that equals '${likes}'`
+          );
+          done();
+        });
+    });
+  });
+
+  suite("Compare Two Stocks Tests", () => {
+    test("1)  Compare Stocks (without Likes)", (done) => {
+      chai
+        .request(server)
+        .get(PATH + "?stock=GOOG&stock=MSFt")
+        .end((err, res) => {
+          assert.equal(res.status, 200, "response status should be 200");
+          assert.isArray(JSON.parse(res.text).stockData);
+          assert.deepPropertyVal(
+            JSON.parse(res.text).stockData[0],
+            "stock",
+            "GOOG",
+            "response should return an array containing an object with a property of 'stock' that equals 'GOOG'"
+          );
+          assert.deepPropertyVal(
+            JSON.parse(res.text).stockData[1],
+            "stock",
+            "MSFT",
+            "response should return an array containing an object with a property of 'stock' that equals 'MSFT'"
           );
           done();
         });
