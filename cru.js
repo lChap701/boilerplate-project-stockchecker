@@ -26,7 +26,7 @@ const Stocks = mongoose.model("Stocks", stockSchema);
 const cru = {
   addStock: (data) => new Stocks(data).save(),
   findStock: (stock) => Stocks.findOne({ stock: stock }),
-  updateStock: (_id, likes) => Stocks.updateOne({ _id: _id }, { likes: likes }),
+  updateStock: (_id, likes, price) => Stocks.updateOne({ _id: _id }, { likes: likes, price: price }),
 };
 
 module.exports = cru;

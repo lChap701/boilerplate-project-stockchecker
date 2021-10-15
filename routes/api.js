@@ -12,8 +12,6 @@ const cru = require("../cru");
 module.exports = function (app) {
   app.route("/api/stock-prices").get((req, res) => {
     const { stock, like } = req.query;
-    console.log(stock);
-    console.log(like);
     const API =
       "https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/" +
       stock +
@@ -31,32 +29,12 @@ module.exports = function (app) {
 
           // Checks if stock needs to be created or updated and displays the stock
           cru.findStock(stock.toUpperCase()).then((stockObj) => {
-            if (stockObj) {
-              if (like == "true") {
-                cru.updateStock(stockObj._id, stockObj.likes + 1).then(() =>
-                  res.json({
-                    stockData: {
-                      stock: stockObj.stock,
-                      price: stockObj.price,
-                      likes: stockObj.likes,
-                    },
-                  })
-                );
-              } else {
-                res.json({
-                  stockData: {
-                    stock: stockObj.stock,
-                    price: stockObj.price,
-                    likes: stockObj.likes,
-                  },
-                });
-              }
-            } else {
+            if (!stockObj) {
               cru
                 .addStock({
                   stock: stock,
                   price: latestPrice,
-                  likes: req.query.like == "true" ? 1 : 0,
+                  likes: like == "true" ? 1 : 0,
                 })
                 .then((stockObj) =>
                   res.json({
@@ -68,6 +46,29 @@ module.exports = function (app) {
                   })
                 )
                 .catch((ex) => res.send(ex));
+              return;
+            }
+
+            if (like == "true" || stockObj.price != latestPrice) {
+              let likes = like == "true" ? stockObj.likes + 1 : stockObj.likes;
+
+              cru.updateStock(stockObj._id, likes, latestPrice).then(() =>
+                res.json({
+                  stockData: {
+                    stock: stockObj.stock,
+                    price: stockObj.price,
+                    likes: stockObj.likes,
+                  },
+                })
+              );
+            } else {
+              res.json({
+                stockData: {
+                  stock: stockObj.stock,
+                  price: stockObj.price,
+                  likes: stockObj.likes,
+                },
+              });
             }
           });
         });
