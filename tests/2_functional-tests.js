@@ -16,7 +16,12 @@ suite("Functional Tests", function () {
         .get(PATH + "?stock=GOOG")
         .end((err, res) => {
           assert.equal(res.status, 200, "response status should be 200");
-          assert.deepPropertyVal(JSON.parse(res.text), "stock", "GOOG", "response should return an object with a property of 'stock' that equals 'GOOG'");
+          assert.deepPropertyVal(
+            JSON.parse(res.text).stockData,
+            "stock",
+            "GOOG",
+            "response should return an object with a property of 'stock' that equals 'GOOG'"
+          );
           done();
         });
     });
